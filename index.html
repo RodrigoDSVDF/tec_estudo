@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AprovaLab — Sua Dúvida, Sua Ferramenta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06060a;
+      --bg-elevated: #0e0e14;
+      --surface: #14141c;
+      --surface-hover: #1c1c28;
+      --accent: #e8a838;
+      --accent-dim: #e8a83822;
+      --accent-glow: #e8a8380c;
+      --green: #34d399;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --purple: #a78bfa;
+      --cyan: #22d3ee;
+      --text-primary: #f0ece4;
+      --text-secondary: #8a8698;
+      --text-muted: #4a4660;
+      --border: #1e1e2a;
+      --border-light: #2a2a3a;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    ::selection { background: var(--accent); color: var(--bg); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 0 48px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(6, 6, 10, 0.75);
+      backdrop-filter: blur(24px) saturate(1.3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px;
+      letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo .mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #d4842a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: var(--bg);
+    }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+      transition: color 0.2s; font-weight: 400;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      padding: 8px 20px; background: var(--accent); color: var(--bg);
+      border: none; border-radius: 100px; font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 11px; text-transform: uppercase;
+      letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s;
+      text-decoration: none;
+    }
+    .nav-cta:hover { box-shadow: 0 4px 24px var(--accent-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; padding: 140px 48px 80px;
+      position: relative; overflow: hidden;
+    }
+
+    .hero::before {
+      content: ''; position: absolute; top: -30%; right: -15%;
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: ''; position: absolute; bottom: -40%; left: -10%;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(34,211,238,0.03) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 18px; border: 1px solid var(--border);
+      border-radius: 100px; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 3px; color: var(--text-muted);
+      margin-bottom: 48px; width: fit-content;
+      opacity: 0; animation: fadeUp 0.7s ease forwards 0.15s;
+    }
+    .hero-eyebrow .glow {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 12px var(--accent-dim);
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(52px, 8.5vw, 110px); line-height: 0.92;
+      letter-spacing: -4px; max-width: 1000px;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.3s;
+    }
+    .hero h1 .serif {
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      font-weight: 400; color: var(--accent); letter-spacing: -1px;
+    }
+
+    .hero-sub {
+      margin-top: 36px; max-width: 540px; color: var(--text-secondary);
+      font-size: 15px; line-height: 1.9;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .hero-actions {
+      margin-top: 48px; display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 32px; background: var(--accent); color: var(--bg);
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      cursor: pointer; transition: all 0.35s ease; text-decoration: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 48px var(--accent-dim);
+      letter-spacing: 2.5px;
+    }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 32px; background: transparent; color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      cursor: pointer; transition: all 0.3s; text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: var(--text-muted); background: var(--surface); }
+
+    .hero-metrics {
+      margin-top: 80px; display: flex; gap: 56px;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.9s;
+    }
+    .metric-value {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 36px; letter-spacing: -1.5px;
+    }
+    .metric-value .hl { color: var(--accent); }
+    .metric-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--text-muted); margin-top: 4px;
+    }
+
+    /* ─── HERO 3D CUBE ─── */
+    .hero-3d-wrapper {
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 200px;
+      height: 200px;
+      perspective: 800px;
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.9s;
+    }
+    .hero-3d-wrapper .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: spinCube 20s infinite linear;
+      transition: transform 0.1s ease-out;
+      pointer-events: auto;
+    }
+    .cube .face {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border: 1px solid rgba(232, 168, 56, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      font-weight: 800;
+      font-family: 'Syne', sans-serif;
+      background: rgba(20, 20, 28, 0.85);
+      backdrop-filter: blur(8px);
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      text-shadow: 0 0 20px var(--accent-glow);
+      backface-visibility: visible;
+    }
+    .cube .face.front  { transform: translateZ(100px); background: rgba(232,168,56,0.15); border-color: var(--accent); }
+    .cube .face.back   { transform: rotateY(180deg) translateZ(100px); background: rgba(96,165,250,0.12); border-color: var(--blue); }
+    .cube .face.right  { transform: rotateY(90deg) translateZ(100px); background: rgba(52,211,153,0.12); border-color: var(--green); }
+    .cube .face.left   { transform: rotateY(-90deg) translateZ(100px); background: rgba(168,85,247,0.12); border-color: var(--purple); }
+    .cube .face.top    { transform: rotateX(90deg) translateZ(100px); background: rgba(248,113,113,0.12); border-color: var(--red); }
+    .cube .face.bottom { transform: rotateX(-90deg) translateZ(100px); background: rgba(34,211,238,0.12); border-color: var(--cyan); }
+
+    .cube .face .label {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-family: 'DM Mono', monospace;
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: 400;
+    }
+    .cube .face .big {
+      font-size: 80px;
+      line-height: 1;
+      margin-top: -10px;
+    }
+
+    @keyframes spinCube {
+      0% { transform: rotateX(-20deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(-20deg) rotateY(360deg) rotateZ(0deg); }
+    }
+
+    .hero-3d-wrapper:hover .cube {
+      animation-play-state: paused;
+    }
+
+    /* ─── PHILOSOPHY SECTION ─── */
+    .philosophy {
+      padding: 140px 48px; position: relative;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+
+    .philosophy::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 15% 30%, rgba(232,168,56,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 70%, rgba(34,211,238,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .philosophy-inner {
+      max-width: 1100px; margin: 0 auto; position: relative;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center;
+    }
+
+    .philosophy-text .section-tag {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--accent); margin-bottom: 24px;
+    }
+    .philosophy-text .section-tag::before {
+      content: ''; width: 28px; height: 1px; background: var(--accent);
+    }
+
+    .philosophy-text h2 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(28px, 3.5vw, 44px); letter-spacing: -1.5px;
+      line-height: 1.1; margin-bottom: 28px;
+    }
+    .philosophy-text h2 em {
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      font-weight: 400; color: var(--accent);
+    }
+
+    .philosophy-text p {
+      color: var(--text-secondary); font-size: 14px; line-height: 1.9;
+      margin-bottom: 16px;
+    }
+
+    .philosophy-visual {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    /* ─── TILT CARDS (3D) ─── */
+    .tilt-card {
+      transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .tilt-card .ph-icon,
+    .tilt-card .ph-title,
+    .tilt-card .ph-desc {
+      transition: transform 0.1s ease-out;
+    }
+
+    .philosophy-card {
+      padding: 28px 28px 28px 28px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); display: flex; gap: 20px;
+      align-items: flex-start;
+      cursor: default;
+    }
+    .philosophy-card:hover {
+      border-color: var(--border-light);
+    }
+
+    .ph-icon {
+      width: 44px; height: 44px; min-width: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; border: 1px solid var(--border);
+    }
+
+    .ph-title {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 15px; letter-spacing: -0.3px; margin-bottom: 4px;
+    }
+    .ph-desc {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.7;
+    }
+
+    /* ─── TOOL BUILDER SECTION ─── */
+    .builder-section {
+      padding: 120px 48px;
+      position: relative;
+    }
+
+    .builder-section::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(232,168,56,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .builder-header {
+      max-width: 1200px; margin: 0 auto 60px; position: relative;
+    }
+
+    .builder-header .section-tag {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .builder-header .section-tag::before {
+      content: ''; width: 28px; height: 1px; background: var(--accent);
+    }
+    .builder-header h2 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(32px, 5vw, 56px); letter-spacing: -2px;
+      line-height: 1.05; margin-bottom: 16px;
+    }
+    .builder-header p {
+      color: var(--text-secondary); max-width: 560px;
+      font-size: 14px; line-height: 1.8;
+    }
+
+    .builder-panel {
+      max-width: 1200px; margin: 0 auto; position: relative;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+    }
+
+    .builder-toolbar {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .builder-toolbar .dots {
+      display: flex; gap: 6px; margin-right: 16px;
+    }
+    .builder-toolbar .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28c840; }
+
+    .builder-toolbar-title {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 2px; color: var(--text-muted);
+    }
+
+    .builder-content {
+      display: grid; grid-template-columns: 380px 1fr;
+      min-height: 520px;
+    }
+
+    .builder-sidebar {
+      padding: 32px; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 28px;
+    }
+
+    .field-group label {
+      display: block; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 2px; color: var(--text-muted); margin-bottom: 10px;
+    }
+
+    .field-group select,
+    .field-group input,
+    .field-group textarea {
+      width: 100%; padding: 12px 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); color: var(--text-primary);
+      font-family: 'DM Mono', monospace; font-size: 13px;
+      outline: none; transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .field-group select:focus,
+    .field-group input:focus,
+    .field-group textarea:focus {
+      border-color: var(--accent);
+    }
+    .field-group textarea {
+      resize: vertical; min-height: 80px; line-height: 1.6;
+    }
+    .field-group select option { background: var(--surface); }
+
+    .difficulty-pills {
+      display: flex; gap: 8px;
+    }
+    .diff-pill {
+      flex: 1; padding: 10px; text-align: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); font-size: 11px;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s; font-family: 'DM Mono', monospace;
+    }
+    .diff-pill:hover { border-color: var(--text-muted); color: var(--text-primary); }
+    .diff-pill.active {
+      border-color: var(--accent); background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .builder-generate-btn {
+      margin-top: auto; width: 100%; padding: 16px;
+      background: var(--accent); color: var(--bg); border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 13px; text-transform: uppercase;
+      letter-spacing: 2px; cursor: pointer;
+      transition: all 0.35s; position: relative; overflow: hidden;
+    }
+    .builder-generate-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px var(--accent-dim);
+    }
+    .builder-generate-btn:active { transform: translateY(0); }
+
+    .builder-generate-btn .btn-loading {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      background: var(--accent); gap: 6px;
+    }
+    .builder-generate-btn.loading .btn-loading { display: flex; }
+    .builder-generate-btn.loading .btn-text { opacity: 0; }
+
+    .loading-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--bg); animation: loadBounce 0.6s ease infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.1s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes loadBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .builder-workspace {
+      padding: 32px; display: flex; flex-direction: column;
+      position: relative; overflow-y: auto;
+    }
+
+    .workspace-empty {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 16px;
+    }
+
+    .workspace-empty-icon {
+      width: 80px; height: 80px; border-radius: 20px;
+      border: 1px dashed var(--border-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .workspace-empty h3 {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 18px; letter-spacing: -0.3px; color: var(--text-secondary);
+    }
+    .workspace-empty p {
+      font-size: 12px; color: var(--text-muted); max-width: 300px;
+      line-height: 1.7;
+    }
+
+    /* Quiz inside builder */
+    .builder-quiz { display: none; flex-direction: column; flex: 1; }
+    .builder-quiz.active { display: flex; }
+
+    .bq-meta {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .bq-tag {
+      padding: 5px 12px; border-radius: 100px;
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1.5px; font-weight: 600;
+    }
+    .bq-progress {
+      font-size: 12px; color: var(--text-muted); margin-left: auto;
+    }
+
+    .bq-question {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 20px; letter-spacing: -0.5px; line-height: 1.4;
+      margin-bottom: 28px;
+    }
+
+    .bq-options { display: flex; flex-direction: column; gap: 10px; }
+
+    .bq-option {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 18px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      cursor: pointer; transition: all 0.25s;
+      font-size: 13px; line-height: 1.6; color: var(--text-secondary);
+    }
+    .bq-option:hover {
+      border-color: var(--text-muted);
+      background: var(--surface-hover); color: var(--text-primary);
+    }
+    .bq-option.selected {
+      border-color: var(--accent); background: var(--accent-glow);
+      color: var(--text-primary);
+    }
+    .bq-option.correct {
+      border-color: var(--green); background: rgba(52,211,153,0.06);
+      color: var(--green);
+    }
+    .bq-option.wrong {
+      border-color: var(--red); background: rgba(248,113,113,0.06);
+      color: var(--red);
+    }
+
+    .bq-letter {
+      width: 30px; height: 30px; min-width: 30px;
+      border-radius: 8px; background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 12px; color: var(--text-muted); transition: all 0.25s;
+    }
+    .bq-option.selected .bq-letter {
+      background: var(--accent); color: var(--bg); border-color: var(--accent);
+    }
+    .bq-option.correct .bq-letter {
+      background: var(--green); color: var(--bg); border-color: var(--green);
+    }
+    .bq-option.wrong .bq-letter {
+      background: var(--red); color: var(--bg); border-color: var(--red);
+    }
+
+    .bq-explanation {
+      margin-top: 20px; padding: 18px;
+      background: var(--surface); border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent);
+      font-size: 12px; line-height: 1.8; color: var(--text-secondary);
+      display: none;
+    }
+    .bq-explanation.show { display: block; }
+    .bq-explanation strong {
+      color: var(--accent); display: block; margin-bottom: 6px;
+      font-family: 'Syne', sans-serif; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .bq-footer {
+      margin-top: auto; padding-top: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .bq-timer { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .bq-timer .t { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text-primary); font-size: 15px; }
+
+    .bq-next {
+      padding: 12px 24px; background: var(--accent); color: var(--bg);
+      border: none; border-radius: var(--radius-xs);
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+      cursor: pointer; transition: all 0.3s;
+      opacity: 0; pointer-events: none;
+    }
+    .bq-next.visible { opacity: 1; pointer-events: auto; }
+    .bq-next:hover { box-shadow: 0 4px 16px var(--accent-dim); }
+
+    /* Results inside builder */
+    .builder-results {
+      display: none; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; text-align: center;
+      gap: 8px;
+    }
+    .builder-results.active { display: flex; }
+
+    .br-circle {
+      width: 140px; height: 140px; position: relative; margin-bottom: 16px;
+    }
+    .br-circle svg { transform: rotate(-90deg); }
+    .br-bg { fill: none; stroke: var(--surface); stroke-width: 6; }
+    .br-fill {
+      fill: none; stroke: var(--accent); stroke-width: 6;
+      stroke-linecap: round; stroke-dasharray: 396;
+      stroke-dashoffset: 396;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .br-pct {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 32px; letter-spacing: -1px;
+    }
+    .br-pct small {
+      font-size: 10px; color: var(--text-muted); font-weight: 400;
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
+
+    .br-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 24px; letter-spacing: -0.5px;
+    }
+    .br-sub { color: var(--text-secondary); font-size: 13px; margin-bottom: 24px; }
+
+    .br-stats { display: flex; gap: 32px; margin-bottom: 28px; }
+    .br-stat-val {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px;
+    }
+    .br-stat-label {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--text-muted); margin-top: 2px;
+    }
+
+    .br-actions { display: flex; gap: 12px; }
+
+    /* ─── SUBJECT CARDS (mini grid) ─── */
+    .quick-section {
+      padding: 100px 48px; border-top: 1px solid var(--border);
+    }
+    .quick-header {
+      max-width: 1200px; margin: 0 auto 48px;
+    }
+    .quick-header .section-tag {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .quick-header .section-tag::before {
+      content: ''; width: 28px; height: 1px; background: var(--accent);
+    }
+    .quick-header h2 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(28px, 4vw, 44px); letter-spacing: -1.5px;
+    }
+
+    .quick-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .quick-card {
+      padding: 28px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      cursor: pointer; transition: all 0.35s;
+      position: relative; overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .quick-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--qc-color, var(--accent));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .quick-card:hover::before { opacity: 1; }
+    .quick-card:hover {
+      border-color: var(--qc-color, var(--accent));
+    }
+
+    .qc-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 18px;
+      background: var(--qc-bg, var(--accent-glow));
+      border: 1px solid var(--border);
+    }
+    .qc-title {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 17px; letter-spacing: -0.3px; margin-bottom: 6px;
+    }
+    .qc-desc {
+      font-size: 12px; color: var(--text-secondary); line-height: 1.7;
+      margin-bottom: 18px;
+    }
+    .qc-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px; border-top: 1px solid var(--border);
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text-muted);
+    }
+    .qc-meta span { color: var(--text-primary); }
+    .qc-arrow {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--text-muted); transition: all 0.3s;
+    }
+    .quick-card:hover .qc-arrow {
+      background: var(--qc-color, var(--accent));
+      border-color: var(--qc-color, var(--accent));
+      color: var(--bg);
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      padding: 120px 48px; text-align: center;
+      position: relative; overflow: hidden;
+      border-top: 1px solid var(--border);
+    }
+    .cta-section::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(36px, 5.5vw, 72px); letter-spacing: -2.5px;
+      line-height: 1; margin-bottom: 20px; position: relative;
+    }
+    .cta-title .serif {
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      font-weight: 400; color: var(--accent);
+    }
+    .cta-desc {
+      color: var(--text-secondary); font-size: 15px;
+      max-width: 460px; margin: 0 auto 40px; line-height: 1.8;
+      position: relative;
+    }
+    .cta-section .btn-primary { position: relative; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 32px 48px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--text-muted);
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent); }
+    .footer-links { display: flex; gap: 24px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .builder-content { grid-template-columns: 1fr; }
+      .builder-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+      .quick-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-3d-wrapper { right: 2%; width: 140px; height: 140px; }
+      .cube .face { width: 140px; height: 140px; font-size: 44px; }
+      .cube .face .big { font-size: 56px; }
+      .cube .face.front  { transform: translateZ(70px); }
+      .cube .face.back   { transform: rotateY(180deg) translateZ(70px); }
+      .cube .face.right  { transform: rotateY(90deg) translateZ(70px); }
+      .cube .face.left   { transform: rotateY(-90deg) translateZ(70px); }
+      .cube .face.top    { transform: rotateX(90deg) translateZ(70px); }
+      .cube .face.bottom { transform: rotateX(-90deg) translateZ(70px); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-metrics { flex-direction: column; gap: 20px; }
+      .hero-actions { flex-direction: column; }
+      .hero-3d-wrapper { display: none; }
+      .philosophy { padding: 80px 20px; }
+      .philosophy-inner { grid-template-columns: 1fr; gap: 40px; }
+      .builder-section { padding: 80px 16px; }
+      .builder-sidebar { padding: 20px; }
+      .builder-workspace { padding: 20px; }
+      .builder-toolbar { padding: 16px 20px; }
+      .quick-section { padding: 60px 20px; }
+      .quick-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 80px 20px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 20px; }
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <span class="mark">A</span>
+      AprovaLab
+    </div>
+    <ul class="nav-links">
+      <li><a href="#filosofia">Metodologia</a></li>
+      <li><a href="#construtor">Construtor</a></li>
+      <li><a href="#materias">Matérias</a></li>
+    </ul>
+    <a href="#construtor" class="nav-cta">Criar ferramenta</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="glow"></span>
+      Era da informação aplicada ao estudo
+    </div>
+    <h1>Sua <span class="serif">dúvida</span> vira<br>sua ferramenta.</h1>
+    <p class="hero-sub">
+      Cada ponto de dificuldade é único. Em vez de simulados genéricos,
+      descreva o que você precisa estudar e receba uma ferramenta interativa
+      construída especificamente para aquele caso.
+    </p>
+    <div class="hero-actions">
+      <a href="#construtor" class="btn-primary">Criar minha ferramenta &#8594;</a>
+      <a href="#filosofia" class="btn-ghost">Entender a ideia</a>
+    </div>
+    <div class="hero-metrics">
+      <div>
+        <div class="metric-value"><span class="hl">2.4k</span>+</div>
+        <div class="metric-label">Questões ativas</div>
+      </div>
+      <div>
+        <div class="metric-value"><span class="hl">100</span>%</div>
+        <div class="metric-label">Personalizável</div>
+      </div>
+      <div>
+        <div class="metric-value">∞</div>
+        <div class="metric-label">Combinações possíveis</div>
+      </div>
+    </div>
+
+    <!-- 3D Cube -->
+    <div class="hero-3d-wrapper" id="heroCubeWrapper">
+      <div class="cube" id="heroCube">
+        <div class="face front"><span class="big">A</span><span class="label">AprovaLab</span></div>
+        <div class="face back"><span class="big">?</span><span class="label">Dúvida</span></div>
+        <div class="face right"><span class="big">!</span><span class="label">Ferramenta</span></div>
+        <div class="face left"><span class="big">*</span><span class="label">Personalizado</span></div>
+        <div class="face top"><span class="big">+</span><span class="label">Evolução</span></div>
+        <div class="face bottom"><span class="big">#</span><span class="label">Precisão</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHILOSOPHY -->
+  <section class="philosophy" id="filosofia">
+    <div class="philosophy-inner">
+      <div class="philosophy-text">
+        <div class="section-tag">Nossa tese</div>
+        <h2>
+          A produção de<br>
+          conhecimento na<br>
+          era da <em>informação</em><br>
+          pede novas formas<br>
+          de estudar.
+        </h2>
+        <p>
+          Nunca houve tanto conteúdo disponível. Mas disponibilidade
+          não é sinônimo de eficiência. O problema não é falta de
+          material — é a distância entre o material genérico e a
+          sua dúvida específica.
+        </p>
+        <p>
+          O AprovaLab nasce dessa constatação: se cada pessoa
+          tem um ponto de travamento diferente, a ferramenta de
+          estudo precisa ser tão específica quanto a própria dúvida.
+          Você não precisa de mais conteúdo. Precisa do conteúdo
+          certo, no formato certo, para o seu caso.
+        </p>
+      </div>
+      <div class="philosophy-visual">
+        <div class="philosophy-card tilt-card" data-tilt>
+          <div class="ph-icon" style="color: var(--red);">&#9888;</div>
+          <div>
+            <div class="ph-title">O problema</div>
+            <div class="ph-desc">Estudantes usam simulados que cobram tudo, menos o que eles realmente não sabem. O tempo é desperdiçado revisando o que já domina.</div>
+          </div>
+        </div>
+        <div class="philosophy-card tilt-card" data-tilt>
+          <div class="ph-icon" style="color: var(--accent);">&#9733;</div>
+          <div>
+            <div class="ph-title">A ideia</div>
+            <div class="ph-desc">Em vez de um simulado fixo, a pessoa descreve sua dúvida — o tema, o subtema, o nível — e recebe uma prova sob medida para aquele ponto.</div>
+          </div>
+        </div>
+        <div class="philosophy-card tilt-card" data-tilt>
+          <div class="ph-icon" style="color: var(--green);">&#10003;</div>
+          <div>
+            <div class="ph-title">O resultado</div>
+            <div class="ph-desc">Cada ferramenta gerada é única. O estudo se torna direcionado, eficiente e cada vez mais preciso com o tempo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOL BUILDER -->
+  <section class="builder-section" id="construtor">
+    <div class="builder-header">
+      <div class="section-tag">Construtor de ferramentas</div>
+      <h2>Descreva sua dúvida.<br>Receba seu treino.</h2>
+      <p>Selecione a disciplina, escolha o tema específico, defina a dificuldade e a quantidade de questões. A ferramenta é gerada para o seu caso.</p>
+    </div>
+
+    <div class="builder-panel">
+      <div class="builder-toolbar">
+        <div class="dots">
+          <span class="dot dot-r"></span>
+          <span class="dot dot-y"></span>
+          <span class="dot dot-g"></span>
+        </div>
+        <span class="builder-toolbar-title">AprovaLab Tool Builder v1.0</span>
+      </div>
+
+      <div class="builder-content">
+        <div class="builder-sidebar">
+          <div class="field-group">
+            <label>Disciplina</label>
+            <select id="bDisciplina" onchange="updateTopics()">
+              <option value="">Selecione...</option>
+              <option value="mat">Matemática</option>
+              <option value="penal">Direito Penal</option>
+              <option value="adm">Direito Administrativo</option>
+              <option value="port">Português</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Tema específico</label>
+            <select id="bTema">
+              <option value="">Selecione a disciplina primeiro</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Dificuldade</label>
+            <div class="difficulty-pills">
+              <div class="diff-pill active" onclick="setDiff(this, 'facil')">Fácil</div>
+              <div class="diff-pill" onclick="setDiff(this, 'medio')">Médio</div>
+              <div class="diff-pill" onclick="setDiff(this, 'dificil')">Difícil</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Quantidade de questões</label>
+            <select id="bQtd">
+              <option value="3">3 questões</option>
+              <option value="5" selected>5 questões</option>
+              <option value="8">8 questões</option>
+              <option value="10">10 questões</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Observações (opcional)</label>
+            <textarea id="bObs" placeholder="Ex: Tenho dificuldade em questões que envolvem prazos prescricionais..."></textarea>
+          </div>
+
+          <button class="builder-generate-btn" id="generateBtn" onclick="generateTool()">
+            <span class="btn-text">Gerar ferramenta &#8594;</span>
+            <div class="btn-loading">
+              <div class="loading-dot"></div>
+              <div class="loading-dot"></div>
+              <div class="loading-dot"></div>
+            </div>
+          </button>
+        </div>
+
+        <div class="builder-workspace">
+          <div class="workspace-empty" id="workspaceEmpty">
+            <div class="workspace-empty-icon">?</div>
+            <h3>Nenhuma ferramenta gerada</h3>
+            <p>Configure os parâmetros ao lado e clique em "Gerar ferramenta" para criar seu treino personalizado.</p>
+          </div>
+
+          <div class="builder-quiz" id="builderQuiz">
+            <div class="bq-meta">
+              <span class="bq-tag" id="bqTag">Matemática</span>
+              <span class="bq-tag" id="bqDiffTag" style="background:var(--surface);border:1px solid var(--border);color:var(--text-muted);">Fácil</span>
+              <span class="bq-progress" id="bqProgress">1 / 5</span>
+            </div>
+            <div class="bq-question" id="bqQuestion"></div>
+            <div class="bq-options" id="bqOptions"></div>
+            <div class="bq-explanation" id="bqExplanation"></div>
+            <div class="bq-footer">
+              <div class="bq-timer">
+                <span>&#9202;</span>
+                <span class="t" id="bqTimer">00:00</span>
+              </div>
+              <button class="bq-next" id="bqNext" onclick="builderNext()">Próxima &#8594;</button>
+            </div>
+          </div>
+
+          <div class="builder-results" id="builderResults">
+            <div class="br-circle">
+              <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle class="br-bg" cx="70" cy="70" r="63"/>
+                <circle class="br-fill" id="brFill" cx="70" cy="70" r="63"/>
+              </svg>
+              <div class="br-pct">
+                <span id="brPct">0%</span>
+                <small>acertos</small>
+              </div>
+            </div>
+            <div class="br-title" id="brTitle">Resultado</div>
+            <div class="br-sub" id="brSub"></div>
+            <div class="br-stats">
+              <div style="text-align:center">
+                <div class="br-stat-val" style="color:var(--green)" id="brCorrect">0</div>
+                <div class="br-stat-label">Corretas</div>
+              </div>
+              <div style="text-align:center">
+                <div class="br-stat-val" style="color:var(--red)" id="brWrong">0</div>
+                <div class="br-stat-label">Erradas</div>
+              </div>
+              <div style="text-align:center">
+                <div class="br-stat-val" id="brTime">00:00</div>
+                <div class="br-stat-label">Tempo</div>
+              </div>
+            </div>
+            <div class="br-actions">
+              <button class="btn-primary" onclick="builderRestart()" style="padding:12px 24px;font-size:11px;">Refazer</button>
+              <button class="btn-ghost" onclick="builderReset()" style="padding:12px 24px;font-size:11px;">Nova ferramenta</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK SUBJECTS -->
+  <section class="quick-section" id="materias">
+    <div class="quick-header">
+      <div class="section-tag">Acesso rápido</div>
+      <h2> Ou comece por uma matéria.</h2>
+    </div>
+    <div class="quick-grid">
+      <div class="quick-card tilt-card" style="--qc-color: var(--blue);" onclick="quickStart('mat')" data-tilt>
+        <div class="qc-icon">&#931;</div>
+        <div class="qc-title">Matemática</div>
+        <div class="qc-desc">Aritmética, álgebra, geometria, PA/PG e raciocínio lógico.</div>
+        <div class="qc-meta"><span>620 questões</span><div class="qc-arrow">&#8594;</div></div>
+      </div>
+      <div class="quick-card tilt-card" style="--qc-color: var(--red);" onclick="quickStart('penal')" data-tilt>
+        <div class="qc-icon">&#9878;</div>
+        <div class="qc-title">Direito Penal</div>
+        <div class="qc-desc">Parte geral e especial, penas, legítima defesa e concurso de pessoas.</div>
+        <div class="qc-meta"><span>580 questões</span><div class="qc-arrow">&#8594;</div></div>
+      </div>
+      <div class="quick-card tilt-card" style="--qc-color: var(--purple);" onclick="quickStart('adm')" data-tilt>
+        <div class="qc-icon">&#9782;</div>
+        <div class="qc-title">Dir. Administrativo</div>
+        <div class="qc-desc">Atos administrativos, licitações, improbidade e servidores.</div>
+        <div class="qc-meta"><span>540 questões</span><div class="qc-arrow">&#8594;</div></div>
+      </div>
+      <div class="quick-card tilt-card" style="--qc-color: var(--green);" onclick="quickStart('port')" data-tilt>
+        <div class="qc-icon">&#9998;</div>
+        <div class="qc-title">Português</div>
+        <div class="qc-desc">Concordância, crase, regência, colocação e interpretação.</div>
+        <div class="qc-meta"><span>660 questões</span><div class="qc-arrow">&#8594;</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2 class="cta-title">Cada dúvida é uma<br>oportunidade de<br><span class="serif">ferramenta</span>.</h2>
+    <p class="cta-desc">Pare de estudar no escuro. Descreva o que precisa e treine com precisão.</p>
+    <a href="#construtor" class="btn-primary">Criar minha ferramenta &#8594;</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>&copy; 2025 AprovaLab — Estudos para Concursos</span>
+    <div class="footer-links">
+      <a href="#">Termos</a>
+      <a href="#">Privacidade</a>
+      <a href="#">Contato</a>
+    </div>
+  </footer>
+
+  <script>
+    // ─── QUESTION BANK (organized by subject + topic) ───
+    const bank = {
+      mat: {
+        name: 'Matemática', color: 'var(--blue)',
+        topics: {
+          'Geral': [
+            { q: 'Se 3x + 7 = 22, qual é o valor de x?', o: ['3','5','7','15'], c: 1, e: 'Subtraindo 7: 3x = 15. Dividindo por 3: x = 5.' },
+            { q: 'Qual é 25% de 840?', o: ['180','200','210','225'], c: 2, e: '25% de 840 = 840 × 0,25 = 210. Ou: 840 ÷ 4 = 210.' },
+            { q: 'A área de um triângulo com base 12 cm e altura 8 cm é:', o: ['96 cm²','48 cm²','20 cm²','80 cm²'], c: 1, e: 'Área = (base × altura) / 2 = (12 × 8) / 2 = 48 cm².' },
+            { q: 'Se um produto custava R$ 200 e teve aumento de 15%, qual o novo preço?', o: ['R$ 215','R$ 225','R$ 230','R$ 240'], c: 2, e: '15% de 200 = 30. Novo preço = 200 + 30 = R$ 230.' },
+            { q: 'Qual é a raiz quadrada de 1.296?', o: ['34','36','38','42'], c: 1, e: '36 × 36 = 1.296, logo √1.296 = 36.' },
+            { q: 'Em uma PA com a₁ = 3 e razão 4, o 10º termo é:', o: ['36','39','43','40'], c: 1, e: 'a₁₀ = 3 + 9 × 4 = 3 + 36 = 39.' },
+            { q: 'O valor de 2⁰ + 3¹ + 4² é:', o: ['20','22','24','26'], c: 1, e: '2⁰ = 1, 3¹ = 3, 4² = 16. Total = 1 + 3 + 16 = 20.' },
+            { q: 'Se f(x) = 2x - 5, então f(7) é:', o: ['7','9','12','14'], c: 1, e: 'f(7) = 2(7) - 5 = 14 - 5 = 9.' },
+            { q: 'A metade do triplo de 24 é:', o: ['24','36','48','72'], c: 1, e: 'Triplo de 24 = 72. Metade de 72 = 36.' },
+            { q: 'Um produto com desconto de 20% custa R$ 160. Qual o preço original?', o: ['R$ 180','R$ 192','R$ 200','R$ 210'], c: 2, e: 'Se 80% = 160, então 100% = 160 ÷ 0,8 = R$ 200.' },
+          ],
+          'Porcentagem': [
+            { q: 'Aumento de 30% sobre R$ 500 resulta em:', o: ['R$ 600','R$ 650','R$ 680','R$ 700'], c: 1, e: '30% de 500 = 150. 500 + 150 = R$ 650.' },
+            { q: 'Se 40% de x = 80, então x =', o: ['120','160','200','240'], c: 2, e: '0,4x = 80 → x = 80 / 0,4 = 200.' },
+            { q: 'Desconto de 10% seguido de mais 10% equivale a desconto total de:', o: ['19%','20%','21%','18%'], c: 0, e: '100 → -10% = 90 → -10% = 81. Desconto total = 19%.' },
+            { q: 'De 250 para 300, o aumento percentual é de:', o: ['15%','18%','20%','25%'], c: 2, e: '(300 - 250) / 250 × 100 = 50/250 × 100 = 20%.' },
+            { q: 'Se o ICMS é 18% e o produto custa R$ 1.000, quanto de imposto?', o: ['R$ 150','R$ 180','R$ 200','R$ 220'], c: 1, e: '18% de 1.000 = R$ 180.' },
+          ],
+          'Raciocínio Lógico': [
+            { q: 'Se todo A é B e todo B é C, então:', o: ['Todo C é A','Todo A é C','Nenhum A é C','Alguns A não são C'], c: 1, e: 'Pela transitividade: A ⊂ B ⊂ C, logo todo A é C.' },
+            { q: 'Se chove, a rua molha. A rua não está molhada. Logo:', o: ['Choveu','Não choveu','Pode ter chovido','A informação é insuficiente'], c: 1, e: 'Modus tollens: P→Q, ¬Q, logo ¬P. Não choveu.' },
+            { q: 'Na sequência 2, 6, 18, 54, ..., o próximo termo é:', o: ['108','162','180','216'], c: 1, e: 'PG com razão 3. 54 × 3 = 162.' },
+            { q: 'Se "A ou B" é verdadeiro e "A" é falso, então:', o: ['B é verdadeiro','B é falso','A e B são falsos','Não se determina'], c: 0, e: 'Se A∨B é verdadeiro e A é falso, B necessariamente é verdadeiro.' },
+            { q: 'Ana é mais alta que Bia. Carla é mais baixa que Ana. Bia é mais alta que Carla. Quem é a mais baixa?', o: ['Ana','Bia','Carla','Não se determina'], c: 2, e: 'Ana > Bia > Carla. Carla é a mais baixa.' },
+          ]
+        }
+      },
+      penal: {
+        name: 'Direito Penal', color: 'var(--red)',
+        topics: {
+          'Geral': [
+            { q: 'O latrocínio (art. 157, §3º, CP) tem pena de:', o: ['12 a 20 anos','16 a 24 anos','20 a 30 anos','24 a 30 anos'], c: 2, e: 'Art. 157, §3º: reclusão de 20 a 30 anos.' },
+            { q: 'A legítima defesa exige:', o: ['Uso moderado contra agressão injusta, atual ou iminente','Reação a agressão passada','Autorização judicial prévia','Que a agressão seja física'], c: 0, e: 'Art. 25 CP: repelir injusta agressão, atual ou iminente, usando moderadamente os meios necessários.' },
+            { q: 'O erro de tipo essencial:', o: ['É irrelevante','Exclui o dolo','Exclui dolo e culpa','Só vale em crimes culposos'], c: 1, e: 'Art. 20, §1º: erro de tipo essencial exclui o dolo, podendo configurar culpa.' },
+            { q: 'A prescrição é calculada com base em:', o: ['Tempo desde a denúncia','Pena em concreto aplicada','Quantidade de provas','Arbítrio do juiz'], c: 1, e: 'A prescrição da pretensão punitiva é calculada com base na pena em concreto (art. 109 CP).' },
+            { q: 'A tentativa, no Direito Penal, exige:', o: ['Início de execução e não consumação por circunstâncias alheias','Apenas intenção de cometer o crime','Conclusão do ato criminoso','Autorização da vítima'], c: 0, e: 'Art. 14, II: início de execução que não se consuma por circunstâncias alheias à vontade do agente.' },
+            { q: 'O concurso de agentes (art. 29 CP) exige:', o: ['Presença física no local','Plano comum e liame subjetivo','Que todos executem o crime','Contrato formal entre agentes'], c: 1, e: 'Basta que concorram de qualquer forma para o crime, com liame subjetivo (dolo compartilhado).' },
+            { q: 'A legítima defesa putativa ocorre quando:', o: ['O agente se defende de agressão real','O agente imagina, por erro, situação de agressão','A vítima consentiu na agressão','Há excesso na defesa'], c: 1, e: 'Legítima defesa putativa: agente supõe, por erro plenamente justificado, estar em situação de legítima defesa (art. 20, §1º).' },
+            { q: 'Os crimes hediondos estão previstos na:', o: ['Parte especial do CP','Lei 8.072/90','Lei 9.099/95','Constituição Federal'], c: 1, e: 'A Lei 8.072/90 define os crimes hediondos e equiparados.' },
+            { q: 'A inimputabilidade penal ocorre quando o agente:', o: ['Tem menos de 18 anos','É maior de 70 anos','Cometeu o crime por embriaguez','Age por culpa'], c: 0, e: 'Art. 27 CP: menores de 18 anos são penalmente inimputáveis.' },
+            { q: 'A autodefesa (excludente de ilicitude) NÃO se aplica a:', o: ['Defesa da própria vida','Defesa de patrimônio','Defesa de terceiros','Defesa da honra como legítima defesa da honra'], c: 3, e: 'A "legítima defesa da honra" não é reconhecida como excludente pelo CP.' },
+          ],
+          'Penas': [
+            { q: 'As espécies de pena previstas no CP são:', o: ['Privação de liberdade, restritiva de direitos e multa','Prisão, detenção e reclusão','Cadeia, confisco e exílio','Detenção, multa e degredo'], c: 0, e: 'Art. 32 CP: penas de privação de liberdade, restritiva de direitos e multa.' },
+            { q: 'A reincidência:', o: ['É obrigatória na dosimetria','Aumenta a pena em 1/6','Aumenta a pena em metade','Não influencia a pena'], c: 1, e: 'Art. 63 CP: a pena é aumentada de 1/6 se o agente é reincidente.' },
+            { q: 'A progressão de regime exige:', o: ['Cumprimento de 1/6 da pena no caso de primário','Sempre metade da pena','Dois terços em qualquer caso','Decisão unânime do tribunal'], c: 0, e: 'Súmula Vinculante 26 e art. 112 da LEP: 1/6 para primário de bom comportamento.' },
+            { q: 'A prescrição da pretensão executória começa a partir de:', o: ['Do crime','Da denúncia','Do trânsito em julgado','Da sentença'], c: 2, e: 'Art. 112 CP: a prescrição executória conta-se do trânsito em julgado da sentença.' },
+            { q: 'As circunstâncias judiciais do art. 59 CP incluem:', o: ['Personalidade do agente e motivos do crime','Apenas a gravidade do dano','Só a culpabilidade','A reincidência'], c: 0, e: 'Art. 59 CP: culpabilidade, antecedentes, conduta social, personalidade, motivos, circunstâncias e consequências.' },
+          ],
+          'Crimes contra a pessoa': [
+            { q: 'O homicídio qualificado (art. 121, §2º) pode ter como qualificadora:', o: ['Motivo fútil','Legítima defesa','Estado de necessidade','Consentimento da vítima'], c: 0, e: 'Art. 121, §2º: motivo fútil ou torpe, meio cruel, traição, emboscada ou garantia de proveito.' },
+            { q: 'A lesão corporal seguida de morte tem pena de:', o: ['4 a 12 anos','6 a 20 anos','8 a 16 anos','10 a 24 anos'], c: 0, e: 'Art. 129, §3º: reclusão de 4 a 12 anos.' },
+            { q: 'O feminicídio é qualificador do homicídio quando praticado:', o: ['Contra qualquer mulher','Contra mulher por razões de gênero','Contra esposa em qualquer contexto','Apenas durante o casamento'], c: 1, e: 'Art. 121, §2º, VI: contra mulher por razões da condição de sexo feminino.' },
+            { q: 'A ameaça (art. 147 CP) exige:', o: ['Ameaça de mal injusto e grave','Apenas ofensa verbal','Dano material efetivo','Lesão corporal'], c: 0, e: 'Art. 147: ameaçar alguém com mal injusto e grave. É crime de perigo.' },
+            { q: 'A difamação (art. 139 CP) difere da calúnia porque:', o: ['Não imputa fato definido como crime','É praticada contra autoridade','Envolve violência física','Não é crime contra a honra'], c: 0, e: 'Calúnia: imputar fato criminoso. Difamação: imputar fato ofensivo à reputação, sem natureza criminal.' },
+          ]
+        }
+      },
+      adm: {
+        name: 'Direito Administrativo', color: 'var(--purple)',
+        topics: {
+          'Geral': [
+            { q: 'Os atributos dos atos administrativos são:', o: ['Presunção de legitimidade, imperatividade, autoexecutoriedade e tipicidade','Legalidade, moralidade, publicidade, eficiência','Competência, finalidade, forma, motivo e objeto','Universalidade, generalidade, abstração e coercibilidade'], c: 0, e: 'Atributos: presunção de legitimidade, imperatividade, autoexecutoriedade e tipicidade.' },
+            { q: 'Os princípios expressos da Administração na CF/88 (art. 37) são:', o: ['LIMPE (Legalidade, Impessoalidade, Moralidade, Publicidade, Eficiência)','Razoabilidade, Proporcionalidade, Segurança Jurídica','Supremacia do interesse público e indisponibilidade','Hierarquia, disciplina, centralização e economicidade'], c: 0, e: 'Art. 37, caput, CF/88: legalidade, impessoalidade, moralidade, publicidade e eficiência.' },
+            { q: 'O poder de polícia administrativa:', o: ['É exclusivo do Judiciário','Condiciona direitos individuais ao interesse público','Só se aplica a atividades comerciais','Depende de autorização legislativa'], c: 1, e: 'O poder de polícia condiciona e restringe direitos individuais em prol da coletividade.' },
+            { q: 'A autotutela administrativa permite à Administração:', o: ['Anular seus atos ilegais e revogar os inconvenientes','Apenas anular qualquer ato','Revogar atos legais a qualquer tempo','Delegar competência ao Judiciário'], c: 0, e: 'Súmulas 346 e 473 do STF: a Administração pode anular atos ilegais e revogar os inconvenientes.' },
+            { q: 'A discricionariedade administrativa se refere a:', o: ['Liberdade do agente dentro dos limites legais','Ausência total de controle judicial','Obrigatoriedade de cumprir ordens judiciais','Competência exclusiva do Legislativo'], c: 0, e: 'Discricionariedade: margem de liberdade conferida pela lei ao administrador para escolher a melhor solução.' },
+          ],
+          'Licitações': [
+            { q: 'O pregão é destinado a:', o: ['Obras de grande porte','Bens e serviços comuns','Serviços técnicos especializados','Alienação de bens imóveis'], c: 1, e: 'Pregão (Lei 14.133/2021): para aquisição de bens e serviços comuns.' },
+            { q: 'A licitação na modalidade pregão pode ser:', o: ['Presencial ou eletrônica','Apenas presencial','Apenas eletrônica','Apenas por carta convite'], c: 0, e: 'Art. 28, I, da Lei 14.133: pregão nas formas presencial e eletrônica.' },
+            { q: 'O critério de julgamento "menor preço" é aplicável a:', o: ['Todas as modalidades','Apenas concorrência','Apenas pregão','Compras em geral de bens e serviços comuns'], c: 3, e: 'O critério de menor preço é o mais comum para bens e serviços comuns, especialmente no pregão.' },
+            { q: 'A inexigibilidade de licitação ocorre quando:', o: ['Há apenas um fornecedor do produto','O valor é inferior a R$ 10 mil','A Administração decide por não licitar','O objeto é de pequeno valor'], c: 0, e: 'Art. 74, Lei 14.133: inexigibilidade quando inviável competição (fornecedor exclusivo).' },
+            { q: 'A Lei de Licitações atualmente vigente é:', o: ['Lei 8.666/93','Lei 10.520/02','Lei 14.133/2021','Decreto 10.024/19'], c: 2, e: 'A Lei 14.133/2021 é a Nova Lei de Licitações e Contratos Administrativos.' },
+          ],
+          'Improbidade': [
+            { q: 'A improbidade administrativa que causa lesão ao erário gera:', o: ['Apenas demissão','Perda da função pública, suspensão de direitos políticos e ressarcimento','Multa sem impacto nos direitos políticos','Advertência formal'], c: 1, e: 'Art. 12, III, Lei 8.429/92: perda da função, suspensão de direitos políticos, multa e ressarcimento.' },
+            { q: 'A Lei de Improbidade Administrativa é a:', o: ['Lei 8.429/92','Lei 8.666/93','Lei 9.784/99','Lei 14.133/2021'], c: 0, e: 'A Lei 8.429/92 disciplina os atos de improbidade administrativa.' },
+            { q: 'O enriquecimento ilícito no exercício de função pública configura:', o: ['Crime comum','Ato de improbidade administrativa','Infração disciplinar apenas','Contravenção penal'], c: 1, e: 'Art. 9º, Lei 8.429/92: enriquecimento ilícito é ato de improbidade administrativa.' },
+            { q: 'A ação de improbidade administrativa tem prazo prescricional de:', o: ['3 anos','5 anos','8 anos','10 anos'], c: 1, e: 'Art. 23, Lei 8.429/92: prazo prescricional de 5 anos, contados da efetiva ocorrência do ato.' },
+            { q: 'Para configurar improbidade, é necessário:', o: ['Dolo em todos os casos','Apenas culpa em qualquer hipótese','Dolo para enriquecimento e lesão ao erário; culpa para ato que atenta princípios','Não é necessário dolo nem culpa'], c: 2, e: 'STF: para atos de enriquecimento e lesão ao erário exige-se dolo; para atentado aos princípios, admite-se culpa.' },
+          ]
+        }
+      },
+      port: {
+        name: 'Português', color: 'var(--green)',
+        topics: {
+          'Geral': [
+            { q: 'Assinale a frase com erro de concordância:', o: ['Fazem dois anos que não viajo.','Houve muitos candidatos.','A maioria dos servidores compareceu.','Acessam o sistema os analistas.'], c: 0, e: '"Fazer" indicando tempo é impessoal: "Faz dois anos" (3ª pessoa do singular).' },
+            { q: '"Ele saiu sem que ninguém _______." Complete:', o: ['soubesse','sabia','soube','sabe'], c: 0, e: '"Sem que" exige subjuntivo: "soubesse" (pretérito imperfeito do subjuntivo).' },
+            { q: 'Uso OBRIGATÓRIO de crase em:', o: ['Viajou à Brasília.','Cheguei à conclusão.','Refiro-me a ela.','Entreguei a aquele diretor.'], c: 1, e: '"Cheguei a + a conclusão" = crase obrigatória (preposição + artigo feminino).' },
+            { q: 'Na frase "Os alunos dedicados obtiveram as melhores notas", "dedicados" é:', o: ['Adjunto adverbial','Adjunto adnominal','Complemento verbal','Predicativo do sujeito'], c: 1, e: '"Dedicados" modifica o substantivo "alunos", sendo adjunto adnominal.' },
+            { q: 'Na norma culta, a forma correta é:', o: ['Me disseram que viriam.','Disseram-me que viriam.','Disseram a mim que viriam.','A mim disseram que viriam.'], c: 1, e: 'Com verbo no início, usamos ênclise: "Disseram-me". (Regra geral da colocação pronominal.)' },
+          ],
+          'Concordância': [
+            { q: 'Assinale a opção CORRETA:', o: ['A maioria dos alunos foi aprovada.','A maioria dos alunos foram aprovados.','A maioria dos alunos foi aprovados.','A maioria dos alunos foram aprovada.'], c: 0, e: '"A maioria" é o núcleo do sujeito, feminino singular: "foi aprovada".' },
+            { q: 'Está correto quanto à concordância:', o: ['Fazem cinco anos.','Faz cinco anos.','Houveram muitos problemas.','Haviam muitos candidatos.'], c: 1, e: '"Fazer" indicando tempo é impessoal: "Faz cinco anos." "Haver" no sentido de existir é impessoal: "Houve problemas."' },
+            { q: '"Precisa-se de vendedores." Está correto?', o: ['Sim, pois "se" é partícula apassivadora','Não, o correto é "Precisa-se vendedores"','Não, pois verbo "precisar" não admite partícula apassivadora','Sim, mas apenas na linguagem informal'], c: 2, e: 'Verbo "precisar" não admite partícula apassivadora (se). O correto: "Precisa-se de vendedores" ou "São necessários vendedores."' },
+            { q: 'Em "Houveram acidentes na estrada", há erro porque:', o: ['"Acidentes" exige verbo no singular','"Haver" no sentido de existir é impessoal','"Estrada" exige artigo definido','A frase está correta'], c: 1, e: '"Haver" no sentido de existir é impessoal (só 3ª pessoa do singular): "Houve acidentes."' },
+            { q: 'A forma correta é:', o: ['Ele e eu fomos.','Ele e eu fui.','Ele e eu foi.','Ele e eu fosse.'], c: 0, e: 'Sujeito composto (3ª + 1ª pessoa) = verbo no plural (1ª pessoa do plural): "fomos".' },
+          ],
+          'Crase': [
+            { q: 'A crase é facultativa em:', o: ['Fui à escola.','Refiro-me àquela questão.','Viajei à (para a) Itália.','Cheguei à conclusão.'], c: 2, e: 'Antes de nomes de cidades terminados em "a", a crase é facultativa.' },
+            { q: 'NÃO há crase em:', o: ['Fui à Bahia.','Ela foi a pé.','Entreguei à diretora.','Cheguei às 10h.'], c: 1, e: '"A pé" — "pé" é masculino, não há artigo feminino. Não se usa crase.' },
+            { q: '"A partir de" e "até" antes de numeral:', o: ['Nunca admitem crase','Sempre admitem crase','"A partir de" admite; "até" admite antes de numeral feminino','São casos de crase obrigatória'], c: 2, e: '"A partir de" não tem crase (sem artigo). "Até" admite crase antes de palavras femininas: "até àquela data."' },
+            { q: 'Crase OBRIGATÓRIA em:', o: ['Fui à Bahia com ela.','Dei presentes à elas.','Cheguei à conclusão.','Fui à pé.'], c: 2, e: '"Cheguei a + a conclusão" = crase obrigatória (preposição + artigo feminino antes de substantivo feminino).' },
+            { q: 'Antes de pronomes demonstrativos (esta, essa, aquela), a crase é:', o: ['Proibida','Obrigatória','Facultativa','Depende do contexto'], c: 1, e: 'Antes de pronomes demonstrativos femininos, a crase é obrigatória: "Referimo-nos àquela questão."' },
+          ]
+        }
+      }
+    };
+
+    // ─── STATE ───
+    let bState = { subject: '', topic: '', diff: 'facil', qtd: 5, questions: [], idx: 0, score: 0, answered: false, seconds: 0, timer: null };
+
+    // ─── TOPIC SELECT ───
+    function updateTopics() {
+      const sub = document.getElementById('bDisciplina').value;
+      const topicSel = document.getElementById('bTema');
+      topicSel.innerHTML = '';
+      if (!sub || !bank[sub]) {
+        topicSel.innerHTML = '<option value="">Selecione a disciplina primeiro</option>';
+        return;
+      }
+      Object.keys(bank[sub].topics).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t; opt.textContent = t;
+        topicSel.appendChild(opt);
+      });
+    }
+
+    // ─── DIFF PILLS ───
+    function setDiff(el, diff) {
+      document.querySelectorAll('.diff-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      bState.diff = diff;
+    }
+
+    // ─── GENERATE TOOL ───
+    function generateTool() {
+      const sub = document.getElementById('bDisciplina').value;
+      const topic = document.getElementById('bTema').value;
+      const qtd = parseInt(document.getElementById('bQtd').value);
+
+      if (!sub) { alert('Selecione uma disciplina.'); return; }
+
+      const btn = document.getElementById('generateBtn');
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+
+        let pool = [];
+        if (topic && bank[sub].topics[topic]) {
+          pool = [...bank[sub].topics[topic]];
+        } else {
+          Object.values(bank[sub].topics).forEach(arr => pool.push(...arr));
+        }
+
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+
+        bState.subject = sub;
+        bState.topic = topic || 'Geral';
+        bState.qtd = Math.min(qtd, pool.length);
+        bState.questions = pool.slice(0, bState.qtd);
+        bState.idx = 0;
+        bState.score = 0;
+        bState.answered = false;
+        bState.seconds = 0;
+
+        document.getElementById('workspaceEmpty').style.display = 'none';
+        document.getElementById('builderResults').classList.remove('active');
+        document.getElementById('builderQuiz').classList.add('active');
+
+        const diffMap = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil' };
+        const tag = document.getElementById('bqTag');
+        tag.textContent = bank[sub].name;
+        tag.style.background = bank[sub].color + '22';
+        tag.style.color = bank[sub].color;
+        document.getElementById('bqDiffTag').textContent = diffMap[bState.diff];
+
+        clearInterval(bState.timer);
+        bState.timer = setInterval(() => {
+          bState.seconds++;
+          const m = String(Math.floor(bState.seconds / 60)).padStart(2, '0');
+          const s = String(bState.seconds % 60).padStart(2, '0');
+          document.getElementById('bqTimer').textContent = `${m}:${s}`;
+        }, 1000);
+
+        renderBuilderQ();
+      }, 1200);
+    }
+
+    function renderBuilderQ() {
+      const q = bState.questions[bState.idx];
+      document.getElementById('bqProgress').textContent = `${bState.idx + 1} / ${bState.qtd}`;
+      document.getElementById('bqQuestion').textContent = q.q;
+
+      const container = document.getElementById('bqOptions');
+      container.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      q.o.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'bq-option';
+        div.innerHTML = `<span class="bq-letter">${letters[i]}</span><span>${opt}</span>`;
+        div.onclick = () => pickBuilder(i);
+        container.appendChild(div);
+      });
+
+      document.getElementById('bqExplanation').classList.remove('show');
+      document.getElementById('bqExplanation').innerHTML = '';
+      document.getElementById('bqNext').classList.remove('visible');
+      bState.answered = false;
+    }
+
+    function pickBuilder(i) {
+      if (bState.answered) return;
+      bState.answered = true;
+
+      const q = bState.questions[bState.idx];
+      const opts = document.querySelectorAll('.bq-option');
+      opts[i].classList.add('selected');
+
+      setTimeout(() => {
+        opts.forEach((o, idx) => {
+          o.style.pointerEvents = 'none';
+          if (idx === q.c) { o.classList.remove('selected'); o.classList.add('correct'); }
+          else if (idx === i) { o.classList.remove('selected'); o.classList.add('wrong'); }
+        });
+        if (i === q.c) bState.score++;
+
+        const exp = document.getElementById('bqExplanation');
+        const ok = i === q.c;
+        exp.innerHTML = `<strong>${ok ? '&#10003; Correto!' : '&#10007; Incorreto'}</strong>${q.e}`;
+        exp.classList.add('show');
+
+        const btn = document.getElementById('bqNext');
+        btn.classList.add('visible');
+        btn.textContent = bState.idx < bState.qtd - 1 ? 'Próxima \u2192' : 'Ver resultado';
+      }, 400);
+    }
+
+    function builderNext() {
+      if (bState.idx < bState.qtd - 1) {
+        bState.idx++;
+        renderBuilderQ();
+      } else {
+        showBuilderResults();
+      }
+    }
+
+    function showBuilderResults() {
+      clearInterval(bState.timer);
+      document.getElementById('builderQuiz').classList.remove('active');
+      document.getElementById('builderResults').classList.add('active');
+
+      const pct = Math.round((bState.score / bState.qtd) * 100);
+      const wrong = bState.qtd - bState.score;
+
+      document.getElementById('bqProgress').textContent = 'Resultado final';
+      document.getElementById('bqNext').classList.remove('visible');
+
+      document.getElementById('brPct').textContent = pct + '%';
+      document.getElementById('brCorrect').textContent = bState.score;
+      document.getElementById('brWrong').textContent = wrong;
+
+      const m = String(Math.floor(bState.seconds / 60)).padStart(2, '0');
+      const s = String(bState.seconds % 60).padStart(2, '0');
+      document.getElementById('brTime').textContent = `${m}:${s}`;
+
+      const circ = 2 * Math.PI * 63;
+      const fill = document.getElementById('brFill');
+      fill.style.strokeDasharray = circ;
+      fill.style.strokeDashoffset = circ;
+      setTimeout(() => { fill.style.strokeDashoffset = circ - (pct / 100) * circ; }, 100);
+
+      if (pct >= 80) {
+        document.getElementById('brTitle').textContent = 'Excelente!';
+        document.getElementById('brSub').textContent = 'Domínio sólido. Continue avançando.';
+        fill.style.stroke = 'var(--green)';
+      } else if (pct >= 60) {
+        document.getElementById('brTitle').textContent = 'Bom caminho!';
+        document.getElementById('brSub').textContent = 'Releia os pontos que errou e refaça.';
+        fill.style.stroke = 'var(--accent)';
+      } else {
+        document.getElementById('brTitle').textContent = 'Siga estudando!';
+        document.getElementById('brSub').textContent = 'Cada tentativa é aprendizado. Tente novamente.';
+        fill.style.stroke = 'var(--red)';
+      }
+    }
+
+    function builderRestart() {
+      bState.idx = 0; bState.score = 0; bState.answered = false; bState.seconds = 0;
+      document.getElementById('builderResults').classList.remove('active');
+      document.getElementById('builderQuiz').classList.add('active');
+      clearInterval(bState.timer);
+      bState.timer = setInterval(() => {
+        bState.seconds++;
+        const m = String(Math.floor(bState.seconds / 60)).padStart(2, '0');
+        const s = String(bState.seconds % 60).padStart(2, '0');
+        document.getElementById('bqTimer').textContent = `${m}:${s}`;
+      }, 1000);
+      renderBuilderQ();
+    }
+
+    function builderReset() {
+      clearInterval(bState.timer);
+      document.getElementById('builderResults').classList.remove('active');
+      document.getElementById('builderQuiz').classList.remove('active');
+      document.getElementById('workspaceEmpty').style.display = '';
+    }
+
+    // ─── QUICK START ───
+    function quickStart(sub) {
+      document.getElementById('bDisciplina').value = sub;
+      updateTopics();
+      document.getElementById('construtor').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => generateTool(), 800);
+    }
+
+    // ─── INTERSECTION OBSERVER (fade) ───
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = ''; obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.philosophy-card, .quick-card').forEach(el => obs.observe(el));
+
+    // ─── 3D TILT CARDS ───
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const rotateX = ((y - cy) / cy) * -8;
+        const rotateY = ((x - cx) / cx) * 8;
+        card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      });
+    });
+
+    // ─── 3D CUBE INTERACTION ───
+    const cube = document.getElementById('heroCube');
+    const wrapper = document.getElementById('heroCubeWrapper');
+    if (cube && wrapper) {
+      wrapper.addEventListener('mousemove', (e) => {
+        const rect = wrapper.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        // Aplica rotação manual sobre a animação contínua (só ajusta o eixo)
+        // Para não quebrar a animação, usamos uma rotação adicional com matrix? Melhor: pausar a animação e aplicar rotação direta.
+        // Vamos desabilitar a animação e aplicar rotação customizada.
+        // Mas a animação já está em andamento, então vamos sobrescrever.
+        cube.style.animation = 'none';
+        const rotY = 20 + x * 40;
+        const rotX = -10 + y * 20;
+        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      });
+      wrapper.addEventListener('mouseleave', () => {
+        cube.style.animation = 'spinCube 20s infinite linear';
+        cube.style.transform = '';
+      });
+    }
+  </script>
+</body>
+</html>
